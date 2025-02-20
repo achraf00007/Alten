@@ -1,0 +1,21 @@
+:host {
+    display: block;
+    height: 100%;
+    overflow: auto !important;
+}
+
+.p-card.p-component {
+    border-radius: inherit!important;
+    box-shadow: none!important;
+}
+
+.p-card-content{
+    padding-top: 0 !important;
+}
+
+.p-dataview .p-dataview-content {
+    padding: 0;
+}
+.p-dataview .p-dataview-header {
+    padding: 0.5rem 0.5rem;
+}
