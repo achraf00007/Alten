@@ -3,42 +3,136 @@ const express = require("express");
 const nodemailer = require("nodemailer");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const fs = require("fs");
+const fs = require("fs-extra");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 const PORT = 5000;
 const FILE_PATH = "../front/src/assets/products.json";
+const USERS_FILE = "./data/users.json";
+const SECRET_KEY = process.env.JWT_SECRET || "super_secret_key";
+const TOKEN_EXPIRATION = process.env.JWT_EXPIRATION || "2h";
 
 app.use(cors({
-    origin: "http://localhost:4200",
+    origin: process.env.Site_URL || "http://localhost:4200",
     methods: ["GET", "POST", "PATCH", "DELETE"],
     credentials: true,
 }));
 app.use(bodyParser.json());
 
+// Lire les produits
 const readProducts = () => {
     try {
-        const data = fs.readFileSync(FILE_PATH);
-        return JSON.parse(data);
+        return fs.readJsonSync(FILE_PATH);
     } catch (error) {
         return [];
     }
 };
 
+// Écrire dans les produits
 const writeProducts = (products) => {
-    fs.writeFileSync(FILE_PATH, JSON.stringify(products, null, 2));
+    fs.writeJsonSync(FILE_PATH, products, { spaces: 2 });
 };
 
-// ====================== Product api's =======================
+// Lire les utilisateurs
+const getUsers = async () => {
+    return await fs.readJson(USERS_FILE).catch(() => []);
+};
 
-// Retrieve all products
-app.get("/api/products", (req, res) => {
-    const products = readProducts();
-    res.json(products);
+// Sauvegarder les utilisateurs
+const saveUsers = async (users) => {
+    await fs.writeJson(USERS_FILE, users);
+};
+
+// Middleware pour vérifier le token JWT
+const verifyToken = (req, res, next) => {
+    const token = req.headers["authorization"];
+    
+    if (!token) {
+        console.log("❌ Accès refusé : Aucun token reçu !");
+        return res.status(403).json({ error: "Accès refusé. Token manquant" });
+    }
+
+    jwt.verify(token.split(" ")[1], SECRET_KEY, (err, decoded) => {
+        if (err) {
+            console.log("❌ Token invalide :", err);
+            return res.status(401).json({ error: "Token invalide" });
+        }
+        req.user = decoded;
+        console.log("✅ Token validé :", req.user);
+        next();
+    });
+};
+
+// Middleware pour restreindre l'accès à l'admin
+const verifyAdmin = (req, res, next) => {
+    if (req.user.email !== "admin@admin.com") {
+        console.log("❌ Accès refusé : Non administrateur !");
+        return res.status(403).json({ error: "Accès refusé. Admin requis" });
+    }
+    next();
+};
+
+// ==================== Authentification ====================
+
+// Création d'un compte utilisateur
+app.post("/api/account", async (req, res) => {
+    const { username, firstname, email, password } = req.body;
+    
+    if (!username || !firstname || !email || !password) {
+        return res.status(400).json({ error: "Tous les champs sont requis" });
+    }
+
+    let users = await getUsers();
+
+    if (users.find(user => user.email === email)) {
+        return res.status(400).json({ error: "Email déjà utilisé" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = { id: Date.now(), username, firstname, email, password: hashedPassword };
+    
+    users.push(newUser);
+    await saveUsers(users);
+
+    res.status(201).json({ message: "Compte créé avec succès" });
 });
 
-// Add a new product
-app.post("/api/products", (req, res) => {
+// Connexion et génération de token JWT
+app.post("/api/token", async (req, res) => {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+        return res.status(400).json({ error: "Email et mot de passe requis" });
+    }
+
+    let users = await getUsers();
+    const user = users.find(user => user.email === email);
+
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+        console.log("❌ Tentative de connexion avec email ou mot de passe incorrect !");
+        return res.status(401).json({ error: "Identifiants invalides" });
+    }
+
+    const token = jwt.sign(
+        { userId: user.id, email: user.email },
+        SECRET_KEY,
+        { expiresIn: TOKEN_EXPIRATION }
+    );
+
+    res.json({ message: "Connexion réussie", token });
+});
+
+// ==================== Gestion des produits ====================
+
+// Récupérer tous les produits
+app.get("/api/products", verifyToken, (req, res) => {
+    res.json(readProducts());
+});
+
+// Ajouter un produit (admin)
+app.post("/api/products", verifyToken, verifyAdmin, (req, res) => {
     const products = readProducts();
     const newProduct = { id: Date.now(), ...req.body };
     products.push(newProduct);
@@ -46,40 +140,31 @@ app.post("/api/products", (req, res) => {
     res.status(201).json(newProduct);
 });
 
-// Retrieve a product by ID
-app.get("/api/products/:id", (req, res) => {
-    const products = readProducts();
-    const product = products.find(p => p.id === parseInt(req.params.id));
-    if (!product) return res.status(404).json({ error: "Product not found" });
-    res.json(product);
-});
-
-// Update a product by ID
-app.patch("/api/products/:id", (req, res) => {
+// Modifier un produit (admin)
+app.patch("/api/products/:id", verifyToken, verifyAdmin, (req, res) => {
     const products = readProducts();
     const index = products.findIndex(p => p.id === parseInt(req.params.id));
-    if (index === -1) return res.status(404).json({ error: "Product not found" });
+    if (index === -1) return res.status(404).json({ error: "Produit introuvable" });
 
     products[index] = { ...products[index], ...req.body };
     writeProducts(products);
     res.json(products[index]);
 });
 
-// Delete a product by ID
-app.delete("/api/products/:id", (req, res) => {
+// Supprimer un produit (admin)
+app.delete("/api/products/:id", verifyToken, verifyAdmin, (req, res) => {
     let products = readProducts();
     products = products.filter(p => p.id !== parseInt(req.params.id));
     writeProducts(products);
-    res.json({ message: "Product deleted successfully" });
+    res.json({ message: "Produit supprimé avec succès" });
 });
 
-// ====================== Email sending api =======================
-
+// ==================== Send mail ====================
 app.post("/api/send-email", async (req, res) => {
     const { email, message } = req.body;
 
     if (!email || !message) {
-        return res.status(400).json({ error: "All fields are required" });
+        return res.status(400).json({ error: "Tous les champs sont requis" });
     }
 
     let transporter = nodemailer.createTransport({
@@ -99,17 +184,18 @@ app.post("/api/send-email", async (req, res) => {
 
     try {
         await transporter.sendMail(mailOptions);
-        res.status(200).json({ message: "Email sent successfully" });
+        res.status(200).json({ message: "Email envoyé avec succès" });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Error sending email" });
+        res.status(500).json({ error: "Erreur lors de l'envoi de l'email" });
     }
 });
 
+// ==================== Démarrage du serveur ====================
 app.get("/", (req, res) => {
-    res.send("🚀 The server is running successfully!");
+    res.send("🚀 Le serveur fonctionne correctement !");
 });
 
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`✅ Serveur en cours d'exécution sur http://localhost:${PORT}`);
 });
