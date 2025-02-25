@@ -2,21 +2,21 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { jwtDecode } from "jwt-decode";
+import { environment } from "environments/environment";
 
 @Injectable({
   providedIn: "root",
 })
 export class AuthService {
-  private apiUrl = "http://localhost:5000/api";
 
   constructor(private http: HttpClient) {}
 
   login(credentials: { email: string; password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/token`, credentials);
+    return this.http.post(`${environment.apiUrl}/token`, credentials);
   }
 
   register(userData: { username: string; firstname: string; email: string; password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/account`, userData);
+    return this.http.post(`${environment.apiUrl}/account`, userData);
   }
 
   logout() {
@@ -35,12 +35,12 @@ export class AuthService {
     return !!this.getToken();
   }
 
-  getUserEmail(): string | null {
+  getUsername(): string | undefined {
     const token = this.getToken();
     if (token) {
-      const decodedToken: any = jwtDecode(token);
-      return decodedToken.email;
+      const decoded: any = jwtDecode(token);
+      return decoded.username;
     }
-    return null;
+    return undefined;
   }
 }

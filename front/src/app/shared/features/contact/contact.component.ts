@@ -4,6 +4,7 @@ import { MessageService } from "primeng/api";
 import { HttpClient } from "@angular/common/http";
 import { ToastModule } from "primeng/toast";
 import { CommonModule } from "@angular/common";
+import { environment } from "environments/environment";
 
 @Component({
   selector: "app-contact",
@@ -46,7 +47,7 @@ onSubmit() {
 
   const formData = this.contactForm.value;
 
-  this.http.post("http://localhost:5000/send-email", formData).subscribe({
+  this.http.post(`${environment.apiUrl}/send-email`, formData).subscribe({
     next: () => {
       this.messageService.add({
         severity: "success",

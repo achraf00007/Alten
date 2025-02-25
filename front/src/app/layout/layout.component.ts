@@ -5,18 +5,19 @@ import {
     signal,
     ViewEncapsulation,
   } from "@angular/core";
-  import { RouterModule } from "@angular/router";
-  import { SplitterModule } from 'primeng/splitter';
-  import { ToolbarModule } from 'primeng/toolbar';
-  import { CommonModule } from "@angular/common";
-  import { DialogModule } from "primeng/dialog";
-  import { SidebarModule } from 'primeng/sidebar';
-  import { MessageService } from "primeng/api";
-  import { ToastModule } from "primeng/toast";
-  import { ButtonModule } from "primeng/button";
-  import { ReactiveFormsModule } from "@angular/forms";
+import { Router, RouterModule } from "@angular/router";
+import { SplitterModule } from 'primeng/splitter';
+import { ToolbarModule } from 'primeng/toolbar';
+import { CommonModule } from "@angular/common";
+import { DialogModule } from "primeng/dialog";
+import { SidebarModule } from 'primeng/sidebar';
+import { MessageService } from "primeng/api";
+import { ToastModule } from "primeng/toast";
+import { ButtonModule } from "primeng/button";
+import { ReactiveFormsModule } from "@angular/forms";
 import { PanelMenuComponent } from "app/shared/ui/panel-menu/panel-menu.component";
 import { CartService } from "app/shared/cart/cart.service";
+import { AuthService } from "app/services/auth.service";
 
 @Component({
   selector: "app-layout",
@@ -28,7 +29,10 @@ import { CartService } from "app/shared/cart/cart.service";
   providers: [MessageService]
 })
 export class LayoutComponent {
-    title = "ALTEN SHOP";
+  title = "ALTEN SHOP";
+
+  dropdownVisible = false;
+
   private readonly messageService = inject(MessageService);
 
 
@@ -40,10 +44,31 @@ export class LayoutComponent {
 
   public cartCount = signal(0);
 
-  constructor() {
+  constructor(private authService: AuthService, private router: Router) {
     effect(() => {
       this.cartCount.set(this.cart_service.getCartCount());
     }, { allowSignalWrites: true });
+  }
+
+  isLoggedIn(): boolean {
+    return this.authService.isAuthenticated();
+  }
+
+  getUsername(): string {
+    return this.authService.getUsername() ?? '';
+  }
+
+  toggleDropdown() {
+    this.dropdownVisible = !this.dropdownVisible;
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(["/login"]);
+  }
+
+  goToLogin() {
+    this.router.navigate(["/login"]);
   }
 
   public openCart() {

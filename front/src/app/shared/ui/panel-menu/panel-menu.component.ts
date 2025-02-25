@@ -18,23 +18,6 @@ export class PanelMenuComponent {
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit() {
-    this.updateMenu();
-  }
-
-  isLoggedIn(): boolean {
-    return this.authService.isAuthenticated();
-  }
-
-  logout() {
-    this.authService.logout();
-    this.updateMenu();
-    this.router.navigate(["/login"]);
-  }
-
-  updateMenu() {
-    const isLoggedIn = this.isLoggedIn();
-    const userEmail = this.authService.getUserEmail();
-
     this.items = [
       {
         label: "Accueil",
@@ -43,34 +26,23 @@ export class PanelMenuComponent {
       },
       {
         label: "Produits",
-        icon: "pi pi-barcode",
+        icon: "pi pi-th-large",
         routerLink: ["/products/list"],
       },
       {
         label: "Contact",
         icon: "pi pi-envelope",
         routerLink: ["/contact"],
-      },
-      {
-        separator: true, // Séparateur visuel
-      },
-      isLoggedIn
-        ? {
-            label: `👤 ${userEmail}`,
-            icon: "pi pi-user",
-            items: [
-              {
-                label: "Déconnexion",
-                icon: "pi pi-sign-out",
-                command: () => this.logout(),
-              },
-            ],
-          }
-        : {
-            label: "Connexion",
-            icon: "pi pi-sign-in",
-            routerLink: ["/login"],
-          },
+      }
     ];
+  }
+
+  isLoggedIn(): boolean {
+    return this.authService.isAuthenticated();
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(["/login"]);
   }
 }

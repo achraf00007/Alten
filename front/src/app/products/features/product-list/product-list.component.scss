@@ -19,3 +19,9 @@
 .p-dataview .p-dataview-header {
     padding: 0.5rem 0.5rem;
 }
+
+.p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+    background: rgb(0 0 0 / 12%);
+    border-color: rgba(103, 58, 183, 0.12);
+    color: #000000;
+}
