@@ -9,8 +9,12 @@ const jwt = require("jsonwebtoken");
 
 const app = express();
 const PORT = 5000;
+
 const FILE_PATH = "../front/src/assets/products.json";
 const USERS_FILE = "./data/users.json";
+const CART_FILE = "./data/cart.json";
+const WISHLIST_FILE = "./data/wishlist.json";
+
 const SECRET_KEY = process.env.JWT_SECRET || "super_secret_key";
 const TOKEN_EXPIRATION = process.env.JWT_EXPIRATION || "2h";
 
@@ -21,46 +25,20 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 
-// Lire les produits
-const readProducts = () => {
-    try {
-        return fs.readJsonSync(FILE_PATH);
-    } catch (error) {
-        return [];
-    }
-};
+// Lire un fichier JSON
+const readJsonFile = (file) => fs.readJsonSync(file, { throws: false }) || [];
 
-// Écrire dans les produits
-const writeProducts = (products) => {
-    fs.writeJsonSync(FILE_PATH, products, { spaces: 2 });
-};
-
-// Lire les utilisateurs
-const getUsers = async () => {
-    return await fs.readJson(USERS_FILE).catch(() => []);
-};
-
-// Sauvegarder les utilisateurs
-const saveUsers = async (users) => {
-    await fs.writeJson(USERS_FILE, users);
-};
+// Écrire dans un fichier JSON
+const writeJsonFile = (file, data) => fs.writeJsonSync(file, data, { spaces: 2 });
 
 // Middleware pour vérifier le token JWT
 const verifyToken = (req, res, next) => {
     const token = req.headers["authorization"];
-    
-    if (!token) {
-        console.log("❌ Accès refusé : Aucun token reçu !");
-        return res.status(403).json({ error: "Accès refusé. Token manquant" });
-    }
+    if (!token) return res.status(403).json({ error: "Accès refusé. Token manquant" });
 
     jwt.verify(token.split(" ")[1], SECRET_KEY, (err, decoded) => {
-        if (err) {
-            console.log("❌ Token invalide :", err);
-            return res.status(401).json({ error: "Token invalide" });
-        }
+        if (err) return res.status(401).json({ error: "Token invalide" });
         req.user = decoded;
-        console.log("✅ Token validé :", req.user);
         next();
     });
 };
@@ -68,7 +46,6 @@ const verifyToken = (req, res, next) => {
 // Middleware pour restreindre l'accès à l'admin
 const verifyAdmin = (req, res, next) => {
     if (req.user.email !== "admin@admin.com") {
-        console.log("❌ Accès refusé : Non administrateur !");
         return res.status(403).json({ error: "Accès refusé. Admin requis" });
     }
     next();
@@ -84,7 +61,7 @@ app.post("/api/account", async (req, res) => {
         return res.status(400).json({ error: "Tous les champs sont requis" });
     }
 
-    let users = await getUsers();
+    let users = readJsonFile(USERS_FILE);
 
     if (users.find(user => user.email === email)) {
         return res.status(400).json({ error: "Email déjà utilisé" });
@@ -94,7 +71,7 @@ app.post("/api/account", async (req, res) => {
     const newUser = { id: Date.now(), username, firstname, email, password: hashedPassword };
     
     users.push(newUser);
-    await saveUsers(users);
+    writeJsonFile(USERS_FILE, users);
 
     res.status(201).json({ message: "Compte créé avec succès" });
 });
@@ -107,11 +84,10 @@ app.post("/api/token", async (req, res) => {
         return res.status(400).json({ error: "Email et mot de passe requis" });
     }
 
-    let users = await getUsers();
+    let users = readJsonFile(USERS_FILE);
     const user = users.find(user => user.email === email);
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
-        console.log("❌ Tentative de connexion avec email ou mot de passe incorrect !");
         return res.status(401).json({ error: "Identifiants invalides" });
     }
 
@@ -127,39 +103,88 @@ app.post("/api/token", async (req, res) => {
 // ==================== Gestion des produits ====================
 
 // Récupérer tous les produits
-app.get("/api/products", verifyToken, (req, res) => {
-    res.json(readProducts());
+app.get("/api/products", (req, res) => {
+    res.json(readJsonFile(FILE_PATH));
 });
 
 // Ajouter un produit (admin)
 app.post("/api/products", verifyToken, verifyAdmin, (req, res) => {
-    const products = readProducts();
+    const products = readJsonFile(FILE_PATH);
     const newProduct = { id: Date.now(), ...req.body };
     products.push(newProduct);
-    writeProducts(products);
+    writeJsonFile(FILE_PATH, products);
     res.status(201).json(newProduct);
 });
 
 // Modifier un produit (admin)
 app.patch("/api/products/:id", verifyToken, verifyAdmin, (req, res) => {
-    const products = readProducts();
+    const products = readJsonFile(FILE_PATH);
     const index = products.findIndex(p => p.id === parseInt(req.params.id));
     if (index === -1) return res.status(404).json({ error: "Produit introuvable" });
 
     products[index] = { ...products[index], ...req.body };
-    writeProducts(products);
+    writeJsonFile(FILE_PATH, products);
     res.json(products[index]);
 });
 
 // Supprimer un produit (admin)
 app.delete("/api/products/:id", verifyToken, verifyAdmin, (req, res) => {
-    let products = readProducts();
+    let products = readJsonFile(FILE_PATH);
     products = products.filter(p => p.id !== parseInt(req.params.id));
-    writeProducts(products);
+    writeJsonFile(FILE_PATH, products);
     res.json({ message: "Produit supprimé avec succès" });
 });
 
+// ==================== Gestion du panier ====================
+
+// Ajouter un produit au panier
+app.post("/api/cart", verifyToken, (req, res) => {
+    let cart = readJsonFile(CART_FILE);
+    cart.push({ userId: req.user.userId, ...req.body });
+    writeJsonFile(CART_FILE, cart);
+    res.status(201).json({ message: "Produit ajouté au panier" });
+});
+
+// Récupérer le panier de l'utilisateur
+app.get("/api/cart", verifyToken, (req, res) => {
+    const cart = readJsonFile(CART_FILE).filter(item => item.userId === req.user.userId);
+    res.json(cart);
+});
+
+// Supprimer un produit du panier
+app.delete("/api/cart/:id", verifyToken, (req, res) => {
+    let cart = readJsonFile(CART_FILE);
+    cart = cart.filter(item => item.userId !== req.user.userId || item.id !== parseInt(req.params.id));
+    writeJsonFile(CART_FILE, cart);
+    res.json({ message: "Produit retiré du panier" });
+});
+
+// ==================== gestion de la wishlist ====================
+
+// Ajouter un produit à la wishlist
+app.post("/api/wishlist", verifyToken, (req, res) => {
+    let wishlist = readJsonFile(WISHLIST_FILE);
+    wishlist.push({ userId: req.user.userId, ...req.body });
+    writeJsonFile(WISHLIST_FILE, wishlist);
+    res.status(201).json({ message: "Produit ajouté à la wishlist" });
+});
+
+// Récupérer la wishlist de l'utilisateur
+app.get("/api/wishlist", verifyToken, (req, res) => {
+    const wishlist = readJsonFile(WISHLIST_FILE).filter(item => item.userId === req.user.userId);
+    res.json(wishlist);
+});
+
+// Supprimer un produit de la wishlist
+app.delete("/api/wishlist/:id", verifyToken, (req, res) => {
+    let wishlist = readJsonFile(WISHLIST_FILE);
+    wishlist = wishlist.filter(item => item.userId !== req.user.userId || item.id !== parseInt(req.params.id));
+    writeJsonFile(WISHLIST_FILE, wishlist);
+    res.json({ message: "Produit retiré de la wishlist" });
+});
+
 // ==================== Send mail ====================
+
 app.post("/api/send-email", async (req, res) => {
     const { email, message } = req.body;
 
@@ -191,7 +216,8 @@ app.post("/api/send-email", async (req, res) => {
     }
 });
 
-// ==================== Démarrage du serveur ====================
+// ====================================================================================================
+
 app.get("/", (req, res) => {
     res.send("🚀 Le serveur fonctionne correctement !");
 });

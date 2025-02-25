@@ -1,0 +1,71 @@
+<p-toast position="bottom-right"></p-toast>
+
+<div class="card h-full">
+    <div class="h-full flex flex-col md:flex-row">
+        <div class="w-full flex flex-col items-center justify-center gap-3 py-5">
+            
+            <div class="flex w-full justify-center">
+                <img class="rounded-xl" src="assets/icons/icon-144x144.png" width="80" />
+            </div>
+
+            <form [formGroup]="registerForm" (ngSubmit)="register()" class="w-full bg-white max-w-lg p-4 rounded-xl shadow-lg">
+                
+                <div class="flex items-center gap-4">
+                    <div class="w-full flex flex-col gap-1">
+                        <label class="text-sm text-black" for="username">Nom d'utilisateur</label>
+                        <input class="h-10" pInputText id="username" type="text" formControlName="username" />
+                        <small class="text-red-500" *ngIf="(username?.invalid && username?.touched) || submitted">
+                            <span *ngIf="username?.errors?.['required']">Le nom d'utilisateur est requis.</span>
+                            <span *ngIf="username?.errors?.['minlength']">Minimum 3 caractères.</span>
+                        </small>
+                    </div>
+    
+                    <div class="w-full flex flex-col gap-1">
+                        <label class="text-sm text-black" for="firstname">Prénom</label>
+                        <input class="h-10" pInputText id="firstname" type="text" formControlName="firstname" />
+                        <small class="text-red-500" *ngIf="(firstname?.invalid && firstname?.touched) || submitted">
+                            <span *ngIf="firstname?.errors?.['required']">Le prénom est requis.</span>
+                            <span *ngIf="firstname?.errors?.['minlength']">Minimum 2 caractères.</span>
+                        </small>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1 mt-4">
+                    <label class="text-sm text-black" for="email">Email</label>
+                    <input class="h-10" pInputText id="email" type="email" formControlName="email" />
+                    <small class="text-red-500" *ngIf="(email?.invalid && email?.touched) || submitted">
+                        <span *ngIf="email?.errors?.['required']">L'email est requis.</span>
+                        <span *ngIf="email?.errors?.['email']">Format d'email invalide.</span>
+                    </small>
+                </div>
+
+                <div class="flex flex-col gap-1 my-4">
+                    <label class="text-sm text-black" for="password">Mot de passe</label>
+                    <input class="h-10" pInputText id="password" type="password" formControlName="password" />
+                    <small class="text-red-500" *ngIf="(password?.invalid && password?.touched) || submitted">
+                        <span *ngIf="password?.errors?.['required']">Le mot de passe est requis.</span>
+                        <span *ngIf="password?.errors?.['minlength']">Minimum 6 caractères.</span>
+                    </small>
+                </div>
+
+                <div class="flex mt-4">
+                    <button type="submit"
+                        class="w-full border bg-emerald-700 text-white rounded-lg py-2 px-2 hover:bg-emerald-800 disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="pi pi-user mr-2"></i> S'inscrire  
+                    </button>
+                </div>
+
+                <p-divider align="center" type="solid" layout="horizontal">
+                    <span class="text-gray-300">Ou</span>
+                </p-divider>
+
+                <div class="flex">
+                    <button (click)="goToLogin()"
+                        class="w-full border border-emerald-700 text-emerald-700 rounded-lg py-2 px-2 hover:bg-emerald-700 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="pi pi-user-plus mr-2"></i> Se connecter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

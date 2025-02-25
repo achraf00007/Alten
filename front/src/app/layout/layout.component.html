@@ -1,0 +1,71 @@
+<p-toast position="bottom-right"></p-toast>
+
+<!-- Toolbar -->
+<p-toolbar [style]="{ height: '100px' }">
+    <div class="p-toolbar-group-start">
+        <img src="assets/icons/icon-72x72.png" alt="logo" />
+    </div>
+    <div class="p-toolbar-group-center">
+        {{ title }}
+    </div>
+    <div class="p-toolbar-group-end relative cursor-pointer" (click)="openCart()">
+        <i class="pi pi-shopping-cart" style="font-size: 2rem"></i>
+        <span *ngIf="cartCount() > 0" 
+              class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full px-2">
+            {{ cartCount() }}
+        </span>
+    </div>
+</p-toolbar>
+
+<!-- Contenu principal avec Sidebar -->
+<p-splitter [panelSizes]="[20, 80]" [style]="{ height: 'calc(100vh - 100px)' }">
+    <ng-template pTemplate>
+        <div class="w-full">
+            <app-panel-menu />
+        </div>
+    </ng-template>
+    <ng-template pTemplate>
+        <div class="w-full app-content">
+            <router-outlet></router-outlet>
+        </div>
+    </ng-template>
+</p-splitter>
+
+<!-- Sidebar pour afficher le panier -->
+<p-sidebar class="relative" [(visible)]="isCartSidebarVisible" position="right" [style]="{ width: '40vw' }">
+    <h1 class="text-black text-lg font-semibold text-center pb-5 pt-0 mt-0 border-b border-gray-300 mb-3">
+        <i class="pi pi-shopping-cart"></i> &nbsp; Mon Panier
+    </h1>
+
+    <div *ngIf="cart().length > 0; else emptyCart">
+        <div *ngFor="let item of cart()" class="flex justify-between items-center border-b py-2">
+            <div class="flex items-start gap-2">
+                <div>
+                    <img [src]="'https://primefaces.org/cdn/primeng/images/demo/product/' + item.product.image" 
+                         [alt]="item.product.name" class="w-16 rounded-md" />
+                </div>
+                <div>
+                    <strong>{{ item.product.name }}</strong>
+                    <div class="text-sm text-gray-600">${{ item.product.price }} x {{ item.quantity }}</div>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <p-button (onClick)="decreaseQuantity(item.product.id, item.product.name)" icon="pi pi-minus" [rounded]="true" severity="info" />
+                <span class="mx-2">{{ item.quantity }}</span>
+                <p-button (onClick)="addToCart(item.product)" icon="pi pi-plus" [rounded]="true" severity="info" />
+                
+                <button (click)="removeFromCart(item.product.id, item.product.name)" class="ml-3 border bg-red-500 text-white rounded-lg px-2 py-1">
+                    <i class="pi pi-trash"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="text-right mt-4">
+            <strong>Total: ${{ getTotalPrice() }}</strong>
+        </div>
+    </div>
+
+    <ng-template #emptyCart>
+        <p class="text-center text-gray-500">Votre panier est vide.</p>
+    </ng-template>
+</p-sidebar>

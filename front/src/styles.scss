@@ -119,3 +119,7 @@ body {
 .p-dataview .p-dataview-header{
   border: none;
 }
+
+.p-divider.p-divider-horizontal:before {
+  border-top: 1px solid #eee !important;
+}
