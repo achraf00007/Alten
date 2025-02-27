@@ -23,7 +23,6 @@ export class ProductsService {
         });
     }
 
-    // 📌 Récupérer tous les produits depuis le backend
     public get(): Observable<Product[]> {
         return this.http.get<Product[]>(this.path, { headers: this.getAuthHeaders() }).pipe(
             catchError((error) => {
@@ -34,7 +33,6 @@ export class ProductsService {
         );
     }
 
-    // 📌 Ajouter un produit
     public create(product: Product): Observable<Product> {
         return this.http.post<Product>(this.path, product, { headers: this.getAuthHeaders() }).pipe(
             catchError((error) => {
@@ -45,7 +43,6 @@ export class ProductsService {
         );
     }
 
-    // 📌 Modifier un produit
     public update(product: Product): Observable<Product> {
         return this.http.patch<Product>(`${this.path}/${product.id}`, product, { headers: this.getAuthHeaders() }).pipe(
             catchError((error) => {
@@ -58,7 +55,6 @@ export class ProductsService {
         );
     }
 
-    // 📌 Supprimer un produit
     public delete(productId: number): Observable<boolean> {
         return this.http.delete<boolean>(`${this.path}/${productId}`, { headers: this.getAuthHeaders() }).pipe(
             catchError((error) => {

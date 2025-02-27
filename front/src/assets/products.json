@@ -11,8 +11,9 @@
     "updatedAt": 1718114215761,
     "shellId": 15,
     "internalReference": "REF-123-456",
-    "inventoryStatus": "INSTOCK",
-    "rating": 5
+    "inventoryStatus": "LOWSTOCK",
+    "rating": 5,
+    "quantity": 1
   },
   {
     "id": 1000,

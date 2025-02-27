@@ -19,39 +19,34 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
   selector: "app-product-form",
   template: `
     <form #form="ngForm" (ngSubmit)="onSave()">
-      
+      <div class="flex justify-between gap-3">
         <div class="form-field w-full">
-          <label for="name">Nom</label>
-          <input pInputText
+          <label class="text-black text-sm" for="name">Nom</label>
+          <input class="h-10" pInputText
             type="text"
             id="name"
             name="name"
             [(ngModel)]="editedProduct().name"
             required>
         </div>
-
+  
         <div class="form-field w-full">
-          <label for="code">Code</label>
-          <input pInputText
+          <label class="text-black text-sm" for="code">Code</label>
+          <input class="h-10" pInputText
             type="text"
             id="code"
             name="code"
             [(ngModel)]="editedProduct().code"
             required>
         </div>
+      </div>
+      
+      <div class="flex justify-between gap-3">
+        
 
         <div class="form-field w-full">
-          <label for="image">Image (URL)</label>
-          <input pInputText
-            type="text"
-            id="image"
-            name="image"
-            [(ngModel)]="editedProduct().image">
-        </div>
-
-        <div class="form-field w-full">
-          <label for="price">Prix</label>
-          <p-inputNumber
+          <label class="text-black text-sm" for="price">Prix</label>
+          <p-inputNumber class="h-10"
             [(ngModel)]="editedProduct().price"
             name="price"
             mode="decimal"
@@ -59,34 +54,48 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
         </div>
 
         <div class="form-field w-full">
-          <label for="quantity">Quantité</label>
-          <p-inputNumber
+          <label class="text-black text-sm" for="quantity">Quantité</label>
+          <p-inputNumber class="h-10"
             [(ngModel)]="editedProduct().quantity"
             name="quantity"
             mode="decimal"
             required />
         </div>
+      </div>
+
+      <div class="form-field w-full">
+          <label class="text-black text-sm" for="image">Image (URL)</label>
+          <input class="h-10" pInputText
+            type="text"
+            id="image"
+            name="image"
+            [(ngModel)]="editedProduct().image">
+        </div>
+
+      <div class="flex justify-between gap-3">
+        <div class="form-field w-full">
+          <label class="text-black text-sm" for="shellId">ID de stockage</label>
+          <p-inputNumber class="h-10"
+            [(ngModel)]="editedProduct().shellId"
+            name="shellId"
+            mode="decimal"/>
+        </div>  
 
         <div class="form-field w-full">
-          <label for="internalReference">Référence interne</label>
-          <input pInputText
+          <label class="text-black text-sm" for="internalReference">Référence interne</label>
+          <input class="h-10" pInputText
             type="text"
             id="internalReference"
             name="internalReference"
             [(ngModel)]="editedProduct().internalReference">
         </div>
+      </div>
 
+        
+      <div class="flex justify-between gap-3">
         <div class="form-field w-full">
-          <label for="shellId">ID de stockage</label>
-          <p-inputNumber
-            [(ngModel)]="editedProduct().shellId"
-            name="shellId"
-            mode="decimal"/>
-        </div>
-
-        <div class="form-field w-full">
-          <label for="category">Catégorie</label>
-          <p-dropdown
+          <label class="text-black text-sm" for="category">Catégorie</label>
+          <p-dropdown class="h-10 mb-2"
             [options]="categories"
             [(ngModel)]="editedProduct().category"
             name="category"
@@ -95,18 +104,19 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
         </div>
 
         <div class="form-field w-full">
-          <label for="inventoryStatus">Statut du stock</label>
-          <p-dropdown
+          <label class="text-black text-sm" for="inventoryStatus">Statut du stock</label>
+          <p-dropdown class="h-10 mb-2"
             [options]="inventoryStatuses"
             [(ngModel)]="editedProduct().inventoryStatus"
             name="inventoryStatus"
             appendTo="body"
           />
         </div>
+      </div>
 
         <div class="form-field w-full">
-          <label for="rating">Évaluation</label>
-          <p-inputNumber
+          <label class="text-black text-sm" for="rating">Évaluation</label>
+          <p-inputNumber class="h-10 mb-2"
             [(ngModel)]="editedProduct().rating"
             name="rating"
             mode="decimal"
@@ -115,7 +125,7 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
         </div>
 
         <div class="form-field w-full md:col-span-2">
-          <label for="description">Description</label>
+          <label class="text-black text-sm" for="description">Description</label>
           <textarea pInputTextarea
             id="description"
             name="description"
@@ -124,9 +134,13 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
           </textarea>
         </div>
 
-      <div class="flex justify-between mt-4">
-        <p-button type="button" (click)="onCancel()" label="Annuler" severity="help"/>
-        <p-button type="submit" [disabled]="!form.valid" label="Enregistrer" severity="success"/>
+      <div class="flex justify-between gap-3 mt-4">
+        <button class="w-full border border-black text-black rounded-lg p-2" type="button" (click)="onCancel()" severity="help">
+          Annuler
+        </button>
+        <button class="w-full border bg-black text-white rounded-lg p-2 disabled:opacity-40 disabled:cursor-not-allowed" type="submit" [disabled]="!form.valid" severity="success">
+          Enregistrer
+        </button>
       </div>
     </form>
   `,
@@ -150,7 +164,6 @@ export class ProductFormComponent {
 
   public readonly editedProduct = computed(() => ({ ...this.product() }));
 
-  // Catégories disponibles
   public readonly categories: SelectItem[] = [
     { value: "Accessories", label: "Accessories" },
     { value: "Fitness", label: "Fitness" },
@@ -158,7 +171,6 @@ export class ProductFormComponent {
     { value: "Electronics", label: "Electronics" },
   ];
 
-  // Statuts de l'inventaire disponibles
   public readonly inventoryStatuses: SelectItem[] = [
     { value: "INSTOCK", label: "En stock" },
     { value: "LOWSTOCK", label: "Stock faible" },
