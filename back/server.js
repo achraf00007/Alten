@@ -25,13 +25,10 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 
-// Lire un fichier JSON
 const readJsonFile = (file) => fs.readJsonSync(file, { throws: false }) || [];
 
-// Écrire dans un fichier JSON
 const writeJsonFile = (file, data) => fs.writeJsonSync(file, data, { spaces: 2 });
 
-// Middleware pour vérifier le token JWT
 const verifyToken = (req, res, next) => {
     const token = req.headers["authorization"];
     if (!token) return res.status(403).json({ error: "Accès refusé. Token manquant" });
@@ -43,7 +40,6 @@ const verifyToken = (req, res, next) => {
     });
 };
 
-// Middleware pour restreindre l'accès à l'admin
 const verifyAdmin = (req, res, next) => {
     if (req.user.email !== "admin@admin.com") {
         return res.status(403).json({ error: "Accès refusé. Admin requis" });
@@ -137,26 +133,106 @@ app.delete("/api/products/:id", verifyToken, verifyAdmin, (req, res) => {
 
 // ==================== Gestion du panier ====================
 
-// Ajouter un produit au panier
-app.post("/api/cart", verifyToken, (req, res) => {
-    let cart = readJsonFile(CART_FILE);
-    cart.push({ userId: req.user.userId, ...req.body });
-    writeJsonFile(CART_FILE, cart);
-    res.status(201).json({ message: "Produit ajouté au panier" });
+// Fonction pour recalculer le total d'un panier
+const calculateTotal = (cart) => {
+    return cart.reduce((total, item) => {
+        if (!item.product || typeof item.product.price !== "number") {
+            console.warn("Produit invalide détecté dans le panier :", item);
+            return total;
+        }
+        return total + (item.product.price * item.quantity);
+    }, 0);
+};
+
+
+// Récupérer le panier de l'utilisateur avec détails des produits et total
+app.get("/api/cart", verifyToken, (req, res) => {
+    let cartData = readJsonFile(CART_FILE);
+    let products = readJsonFile(FILE_PATH);
+
+    let userCart = cartData.find(cart => cart.userId === req.user.userId);
+
+    if (!userCart) {
+        return res.json({ cart: [], totalPrice: 0 });
+    }
+
+    let detailedCart = userCart.cart.map(item => {
+        let product = products.find(p => p.id === item.id);
+        if (!product) {
+            console.warn(`Produit introuvable : ID ${item.id}, ignoré.`);
+            return null; 
+        }
+        return { ...item, product };
+    }).filter(item => item !== null); 
+
+    let totalPrice = calculateTotal(detailedCart);
+
+    res.json({ cart: detailedCart, totalPrice });
 });
 
-// Récupérer le panier de l'utilisateur
-app.get("/api/cart", verifyToken, (req, res) => {
-    const cart = readJsonFile(CART_FILE).filter(item => item.userId === req.user.userId);
-    res.json(cart);
+
+
+// Ajouter un produit au panier (avec les détails complets du produit)
+app.post("/api/cart", verifyToken, (req, res) => {
+    let cartData = readJsonFile(CART_FILE);
+    let products = readJsonFile(FILE_PATH);
+    let { id, quantity } = req.body;
+
+    let product = products.find(p => p.id === id);
+    if (!product) return res.status(404).json({ error: "Produit introuvable" });
+
+    let userCart = cartData.find(cart => cart.userId === req.user.userId);
+    if (!userCart) {
+        userCart = { userId: req.user.userId, cart: [], totalPrice: 0 };
+        cartData.push(userCart);
+    }
+
+    let existingItem = userCart.cart.find(item => item.id === id);
+    if (existingItem) {
+        existingItem.quantity += quantity || 1;
+    } else {
+        userCart.cart.push({ id, quantity: quantity || 1, product });
+    }
+
+    userCart.totalPrice = calculateTotal(userCart.cart);
+
+    writeJsonFile(CART_FILE, cartData);
+    res.status(201).json({ message: "Produit ajouté au panier", cart: userCart.cart, totalPrice: userCart.totalPrice });
+});
+
+
+// Modifier la quantité d'un produit dans le panier
+app.patch("/api/cart/:id", verifyToken, (req, res) => {
+    let cartData = readJsonFile(CART_FILE);
+    let userCart = cartData.find(cart => cart.userId === req.user.userId);
+    if (!userCart) return res.status(404).json({ error: "Panier introuvable" });
+
+    let item = userCart.cart.find(item => item.id === parseInt(req.params.id));
+    if (!item) return res.status(404).json({ error: "Produit non trouvé" });
+
+    item.quantity = req.body.quantity;
+    if (item.quantity <= 0) {
+        userCart.cart = userCart.cart.filter(i => i.id !== item.id);
+    }
+
+    userCart.totalPrice = calculateTotal(userCart.cart);
+    writeJsonFile(CART_FILE, cartData);
+
+    res.json({ message: "Quantité mise à jour", cart: userCart.cart, totalPrice: userCart.totalPrice });
 });
 
 // Supprimer un produit du panier
 app.delete("/api/cart/:id", verifyToken, (req, res) => {
-    let cart = readJsonFile(CART_FILE);
-    cart = cart.filter(item => item.userId !== req.user.userId || item.id !== parseInt(req.params.id));
-    writeJsonFile(CART_FILE, cart);
-    res.json({ message: "Produit retiré du panier" });
+    let cartData = readJsonFile(CART_FILE);
+    let userCart = cartData.find(cart => cart.userId === req.user.userId);
+    if (!userCart) return res.status(404).json({ error: "Panier introuvable" });
+
+    userCart.cart = userCart.cart.filter(item => item.id !== parseInt(req.params.id));
+
+    userCart.totalPrice = calculateTotal(userCart.cart);
+    writeJsonFile(CART_FILE, cartData);
+
+    res.json({ message: "Produit retiré du panier", cart: userCart.cart, totalPrice: userCart.totalPrice });
 });
 
 // ==================== gestion de la wishlist ====================

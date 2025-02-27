@@ -3,16 +3,28 @@ import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { jwtDecode } from "jwt-decode";
 import { environment } from "environments/environment";
+import { CartService } from "app/shared/cart/cart.service";
 
 @Injectable({
   providedIn: "root",
 })
 export class AuthService {
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private cartService: CartService) {}
 
   login(credentials: { email: string; password: string }): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/token`, credentials);
+    return new Observable(observer => {
+      this.http.post<{ token: string }>(`${environment.apiUrl}/token`, credentials).subscribe(response => {
+        if (response.token) {
+          this.saveToken(response.token);
+          this.loadUserCart();
+        }
+        observer.next(response);
+        observer.complete();
+      }, error => {
+        observer.error(error);
+      });
+    });
   }
 
   register(userData: { username: string; firstname: string; email: string; password: string }): Observable<any> {
@@ -32,25 +44,40 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    if (!token) return false;
+
+    try {
+      const decoded: any = jwtDecode(token);
+      return Date.now() < decoded.exp * 1000;
+    } catch (error) {
+      return false;
+    }
   }
 
   getUsername(): string | undefined {
     const token = this.getToken();
-    if (token) {
-      const decoded: any = jwtDecode(token);
-      return decoded.username;
+    if (!token) return undefined;
+
+    try {
+      return (jwtDecode(token) as any).username;
+    } catch (error) {
+      return undefined;
     }
-    return undefined;
   }
-  
-  
+
   getUserEmail(): string | null {
     const token = this.getToken();
-    if (token) {
-      const decodedToken: any = jwtDecode(token);
-      return decodedToken.email;
+    if (!token) return null;
+
+    try {
+      return (jwtDecode(token) as any).email;
+    } catch (error) {
+      return null;
     }
-    return null;
+  }
+
+  private loadUserCart() {
+    this.cartService.loadCart();
   }
 }
