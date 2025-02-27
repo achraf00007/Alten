@@ -9,10 +9,10 @@
     </div>
 
     <div class="p-toolbar-group-end relative cursor-pointer">
-        <div  (click)="openCart()">
-            <i class="pi pi-shopping-cart" style="font-size: 1.5rem"></i>
+        <div class="relative" (click)="openCart()">
+            <i class="pi pi-shopping-cart text-black" style="font-size: 1.5rem"></i>
             <span *ngIf="cartCount() > 0" 
-                  class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full px-2">
+                  class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full px-1">
                 {{ cartCount() }}
             </span>
         </div>

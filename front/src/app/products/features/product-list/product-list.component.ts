@@ -14,6 +14,7 @@ import { DropdownModule } from "primeng/dropdown";
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { RatingModule } from 'primeng/rating';
+import { AuthService } from "app/services/auth.service";
 
 const emptyProduct: Product = {
   id: 0,
@@ -43,6 +44,8 @@ const emptyProduct: Product = {
 })
 export class ProductListComponent implements OnInit {
   private readonly productsService = inject(ProductsService);
+  private readonly authService = inject(AuthService);
+  
   private readonly cartService = inject(CartService);
   private readonly messageService = inject(MessageService);
 
@@ -66,30 +69,87 @@ export class ProductListComponent implements OnInit {
     this.sortOptions = [
       { label: 'Price High to Low', value: '!price' },
       { label: 'Price Low to High', value: 'price' }
-  ];
+    ];
+  }
+
+  public isAdmin(): boolean {
+    return this.authService.getUserEmail() === "admin@admin.com";
   }
 
   public onCreate() {
+    if (!this.isAdmin()) {
+      this.messageService.add({
+        severity: "error",
+        summary: "Accès refusé",
+        detail: "Vous n'avez pas l'autorisation d'ajouter un produit",
+        life: 3000,
+      });
+      return;
+    }
+    
     this.isCreation = true;
     this.isDialogVisible = true;
     this.editedProduct.set(emptyProduct);
   }
 
   public onUpdate(product: Product) {
+    if (!this.isAdmin()) {
+      this.messageService.add({
+          severity: "error",
+          summary: "Accès refusé",
+          detail: "Vous n'avez pas l'autorisation de modifier un produit",
+          life: 3000,
+      });
+      return;
+    }
+
     this.isCreation = false;
     this.isDialogVisible = true;
     this.editedProduct.set(product);
   }
 
   public onDelete(product: Product) {
-    this.productsService.delete(product.id).subscribe();
+    if (!this.isAdmin()) {
+      this.messageService.add({
+          severity: "error",
+          summary: "Accès refusé",
+          detail: "Vous n'avez pas l'autorisation de supprimer un produit",
+          life: 3000,
+      });
+      return;
+    }
+
+    this.productsService.delete(product.id).subscribe(() => {
+      this.messageService.add({
+        severity: "success",
+        summary: "Suppression réussie",
+        detail: `Le produit "${product.name}" a été supprimé.`,
+        life: 3000
+      });
+    });
   }
 
   public onSave(product: Product) {
     if (this.isCreation) {
-      this.productsService.create(product).subscribe();
+      this.productsService.create(product).subscribe(() => {
+        this.messageService.add({
+          severity: "success",
+          summary: "Ajout réussi",
+          detail: `Le produit "${product.name}" a été ajouté.`,
+          life: 3000
+        });
+        this.productsService.get().subscribe();
+      });
     } else {
-      this.productsService.update(product).subscribe();
+      this.productsService.update(product).subscribe(() => {
+        this.messageService.add({
+          severity: "success",
+          summary: "Mise à jour réussie",
+          detail: `Le produit "${product.name}" a été mis à jour.`,
+          life: 3000
+        });
+        this.productsService.get().subscribe();
+      });
     }
     this.closeDialog();
   }

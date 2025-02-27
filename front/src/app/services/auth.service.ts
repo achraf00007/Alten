@@ -43,4 +43,14 @@ export class AuthService {
     }
     return undefined;
   }
+  
+  
+  getUserEmail(): string | null {
+    const token = this.getToken();
+    if (token) {
+      const decodedToken: any = jwtDecode(token);
+      return decodedToken.email;
+    }
+    return null;
+  }
 }
