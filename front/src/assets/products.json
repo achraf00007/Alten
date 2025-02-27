@@ -28,7 +28,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 5
+    "rating": 5,
+    "quantity": 5
   },
   {
     "id": 1001,
@@ -43,7 +44,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 4
+    "rating": 4,
+    "quantity": 17
   },
   {
     "id": 1002,
@@ -58,7 +60,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "LOWSTOCK",
-    "rating": 3
+    "rating": 3,
+    "quantity": 4
   },
   {
     "id": 1003,
@@ -73,7 +76,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 5
+    "rating": 5,
+    "quantity": 25
   },
   {
     "id": 1004,
@@ -88,7 +92,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 4
+    "rating": 4,
+    "quantity": 20
   },
   {
     "id": 1005,
@@ -103,7 +108,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "OUTOFSTOCK",
-    "rating": 4
+    "rating": 4,
+    "quantity": 0
   },
   {
     "id": 1006,
@@ -118,7 +124,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "LOWSTOCK",
-    "rating": 3
+    "rating": 3,
+    "quantity": 2
   },
   {
     "id": 1007,
@@ -133,7 +140,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 5
+    "rating": 5,
+    "quantity": 44
   },
   {
     "id": 1008,
@@ -148,7 +156,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "LOWSTOCK",
-    "rating": 4
+    "rating": 4,
+    "quantity": 5
   },
   {
     "id": 1009,
@@ -163,7 +172,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 3
+    "rating": 3,
+    "quantity": 13
   },
   {
     "id": 1010,
@@ -178,7 +188,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "OUTOFSTOCK",
-    "rating": 4
+    "rating": 4,
+    "quantity": 0
   },
   {
     "id": 1011,
@@ -193,7 +204,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 4
+    "rating": 4,
+    "quantity": 52
   },
   {
     "id": 1012,
@@ -208,7 +220,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 5
+    "rating": 5,
+    "quantity": 32
   },
   {
     "id": 1013,
@@ -223,7 +236,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "OUTOFSTOCK",
-    "rating": 3
+    "rating": 3,
+    "quantity": 33
   },
   {
     "id": 1014,
@@ -238,7 +252,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "LOWSTOCK",
-    "rating": 5
+    "rating": 5,
+    "quantity": 4
   },
   {
     "id": 1015,
@@ -253,7 +268,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 4
+    "rating": 4,
+    "quantity": 29
   },
   {
     "id": 1016,
@@ -268,7 +284,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 3
+    "rating": 3,
+    "quantity": 19
   },
   {
     "id": 1017,
@@ -283,7 +300,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 4
+    "rating": 4,
+    "quantity": 34
   },
   {
     "id": 1018,
@@ -298,7 +316,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 5
+    "rating": 5,
+    "quantity": 120
   },
   {
     "id": 1019,
@@ -313,7 +332,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 4
+    "rating": 4,
+    "quantity": 47
   },
   {
     "id": 1020,
@@ -328,7 +348,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "OUTOFSTOCK",
-    "rating": 4
+    "rating": 4,
+    "quantity": 0
   },
   {
     "id": 1021,
@@ -343,7 +364,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "LOWSTOCK",
-    "rating": 3
+    "rating": 3,
+    "quantity": 4
   },
   {
     "id": 1022,
@@ -358,7 +380,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 4
+    "rating": 4,
+    "quantity": 33
   },
   {
     "id": 1023,
@@ -373,7 +396,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "LOWSTOCK",
-    "rating": 5
+    "rating": 5,
+    "quantity": 2
   },
   {
     "id": 1024,
@@ -388,7 +412,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 4
+    "rating": 4,
+    "quantity": 66
   },
   {
     "id": 1025,
@@ -403,7 +428,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 4
+    "rating": 4,
+    "quantity": 51
   },
   {
     "id": 1026,
@@ -418,7 +444,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "LOWSTOCK",
-    "rating": 3
+    "rating": 3,
+    "quantity": 4
   },
   {
     "id": 1027,
@@ -433,7 +460,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 3
+    "rating": 3,
+    "quantity": 22
   },
   {
     "id": 1028,
@@ -448,7 +476,8 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 5
+    "rating": 5,
+    "quantity": 13
   },
   {
     "id": 1029,
@@ -463,6 +492,7 @@
     "shellId": 15,
     "internalReference": "REF-123-456",
     "inventoryStatus": "INSTOCK",
-    "rating": 8
+    "rating": 8,
+    "quantity": 21
   }
 ]
