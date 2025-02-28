@@ -1,12 +1,13 @@
 import { Injectable, signal } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Product } from "app/products/data-access/product.model";
+import { environment } from "environments/environment";
 
 @Injectable({
   providedIn: "root",
 })
 export class CartService {
-  private apiUrl = "http://localhost:5000/api/cart"; 
+  private apiUrl = `${environment.apiUrl}/cart`; 
   public cart = signal<{ product: Product; quantity: number }[]>([]);
   public totalPrice = signal<number>(0);
 

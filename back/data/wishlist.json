@@ -1,1 +1,50 @@
-[]
+[
+  {
+    "userId": 1740393653516,
+    "wishlist": [
+      {
+        "id": 1,
+        "product": {
+          "id": 1,
+          "code": "f230fh0g3",
+          "name": "Bamboo Watch",
+          "description": "Product Description",
+          "image": "bamboo-watch.jpg",
+          "price": 65,
+          "category": "Accessories",
+          "createdAt": 1718114215761,
+          "updatedAt": 1718114215761,
+          "shellId": 15,
+          "internalReference": "REF-123-456",
+          "inventoryStatus": "LOWSTOCK",
+          "rating": 5,
+          "quantity": 2
+        }
+      }
+    ]
+  },
+  {
+    "userId": 1740257124482,
+    "wishlist": [
+      {
+        "id": 1002,
+        "product": {
+          "id": 1002,
+          "code": "zz21cz3c1",
+          "name": "Blue Band",
+          "description": "Product Description",
+          "image": "blue-band.jpg",
+          "price": 79,
+          "category": "Fitness",
+          "createdAt": 1718114215761,
+          "updatedAt": 1718114215761,
+          "shellId": 15,
+          "internalReference": "REF-123-456",
+          "inventoryStatus": "LOWSTOCK",
+          "rating": 3,
+          "quantity": 4
+        }
+      }
+    ]
+  }
+]

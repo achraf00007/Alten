@@ -208,8 +208,20 @@ public isInWishlist(product: Product): boolean {
 public toggleWishlist(product: Product) {
   if (this.isInWishlist(product)) {
       this.wishlistService.removeFromWishlist(product.id);
+      this.messageService.add({
+        severity: "error",
+        summary: "Produit retiré",
+        detail: `${product.name} a été supprimé des favoris`,
+        life: 3000,
+      });
   } else {
       this.wishlistService.addToWishlist(product);
+      this.messageService.add({
+        severity: "success",
+        summary: "Produit ajouté",
+        detail: `${product.name} a été ajouté au favoris`,
+        life: 3000,
+      });
   }
 }
 

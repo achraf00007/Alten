@@ -1,12 +1,13 @@
 import { Injectable, signal } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Product } from "app/products/data-access/product.model";
+import { environment } from "environments/environment";
 
 @Injectable({
   providedIn: "root",
 })
 export class WishlistService {
-  private apiUrl = "http://localhost:5000/api/wishlist";
+  private apiUrl = `${environment.apiUrl}/wishlist`;
   public wishlist = signal<{ product: Product }[]>([]);
 
   constructor(private http: HttpClient) {}

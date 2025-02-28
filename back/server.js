@@ -271,7 +271,7 @@ app.get("/api/wishlist", verifyToken, (req, res) => {
     let userWishlist = wishlistData.find(wishlist => wishlist.userId === req.user.userId);
 
     if (!userWishlist) {
-        return res.json({ wishlist: [] }); // ✅ Retourner une liste vide si aucun produit
+        return res.json({ wishlist: [] });
     }
 
     res.json({ wishlist: userWishlist.wishlist });
