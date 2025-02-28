@@ -239,25 +239,60 @@ app.delete("/api/cart/:id", verifyToken, (req, res) => {
 
 // Ajouter un produit à la wishlist
 app.post("/api/wishlist", verifyToken, (req, res) => {
-    let wishlist = readJsonFile(WISHLIST_FILE);
-    wishlist.push({ userId: req.user.userId, ...req.body });
-    writeJsonFile(WISHLIST_FILE, wishlist);
-    res.status(201).json({ message: "Produit ajouté à la wishlist" });
+    let wishlistData = readJsonFile(WISHLIST_FILE);
+    let products = readJsonFile(FILE_PATH);
+    let { id } = req.body;
+
+    let product = products.find(p => p.id === id);
+    if (!product) return res.status(404).json({ error: "Produit introuvable" });
+
+    // Vérifier si l'utilisateur a déjà une wishlist
+    let userWishlist = wishlistData.find(wishlist => wishlist.userId === req.user.userId);
+    if (!userWishlist) {
+        userWishlist = { userId: req.user.userId, wishlist: [] };
+        wishlistData.push(userWishlist);
+    }
+
+    // Vérifier si le produit est déjà dans la wishlist
+    let existingItem = userWishlist.wishlist.find(item => item.id === id);
+    if (!existingItem) {
+        userWishlist.wishlist.push({ id, product });
+    }
+
+    writeJsonFile(WISHLIST_FILE, wishlistData);
+    res.status(201).json({ message: "Produit ajouté à la wishlist", wishlist: userWishlist.wishlist });
 });
+
+
 
 // Récupérer la wishlist de l'utilisateur
 app.get("/api/wishlist", verifyToken, (req, res) => {
-    const wishlist = readJsonFile(WISHLIST_FILE).filter(item => item.userId === req.user.userId);
-    res.json(wishlist);
+    let wishlistData = readJsonFile(WISHLIST_FILE);
+    let userWishlist = wishlistData.find(wishlist => wishlist.userId === req.user.userId);
+
+    if (!userWishlist) {
+        return res.json({ wishlist: [] }); // ✅ Retourner une liste vide si aucun produit
+    }
+
+    res.json({ wishlist: userWishlist.wishlist });
 });
+
+
 
 // Supprimer un produit de la wishlist
 app.delete("/api/wishlist/:id", verifyToken, (req, res) => {
-    let wishlist = readJsonFile(WISHLIST_FILE);
-    wishlist = wishlist.filter(item => item.userId !== req.user.userId || item.id !== parseInt(req.params.id));
-    writeJsonFile(WISHLIST_FILE, wishlist);
-    res.json({ message: "Produit retiré de la wishlist" });
+    let wishlistData = readJsonFile(WISHLIST_FILE);
+    let userWishlist = wishlistData.find(wishlist => wishlist.userId === req.user.userId);
+
+    if (!userWishlist) return res.status(404).json({ error: "Liste d'envies introuvable" });
+
+    userWishlist.wishlist = userWishlist.wishlist.filter(item => item.id !== parseInt(req.params.id));
+
+    writeJsonFile(WISHLIST_FILE, wishlistData);
+    res.json({ message: "Produit retiré de la wishlist", wishlist: userWishlist.wishlist });
 });
+
+
 
 // ==================== Send mail ====================
 

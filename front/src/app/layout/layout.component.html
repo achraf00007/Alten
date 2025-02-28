@@ -9,6 +9,17 @@
     </div>
 
     <div class="p-toolbar-group-end relative cursor-pointer">
+        <div class="relative cursor-pointer" (click)="toggleWishlistSidebar()">
+            <span class="text-black">
+                My whishlist
+                <i class="pi pi-heart text-lg"></i>
+            </span>
+            <span *ngIf="wishlistCount() > 0" 
+                  class="absolute -top-1 -right-2 bg-red-500 text-white text-xs font-bold rounded-full px-1">
+                {{ wishlistCount() }}
+            </span>
+        </div>
+        <span class="mx-3 text-gray-300">|</span>
         <div class="relative" (click)="openCart()">
             <i class="pi pi-shopping-cart text-black" style="font-size: 1.5rem"></i>
             <span *ngIf="cartCount() > 0" 
@@ -88,3 +99,32 @@
         <p class="text-center text-gray-500">Votre panier est vide.</p>
     </ng-template>
 </p-sidebar>
+
+<p-sidebar class="relative" [(visible)]="isWishlistSidebarVisible" position="right" [style]="{ width: '40vw' }">
+    <h1 class="text-black text-lg font-semibold text-center pb-5 pt-0 mt-0 border-b border-gray-300 mb-3">
+        <i class="pi pi-heart"></i> &nbsp; Ma Wishlist
+    </h1>
+
+    <div *ngIf="wishlist().length > 0; else emptyWishlist">
+        <div *ngFor="let item of wishlist()" class="flex justify-between items-center border-b py-2">
+            <div class="flex items-start gap-2">
+                <div>
+                    <img [src]="'https://primefaces.org/cdn/primeng/images/demo/product/' + item.product.image" 
+                         [alt]="item.product.name" class="w-16 rounded-md" />
+                </div>
+                <div>
+                    <strong>{{ item.product.name }}</strong>
+                    <div class="text-sm text-gray-600">${{ item.product.price }}</div>
+                </div>
+            </div>
+            <button (click)="removeFromWishlist(item.product.id)" class="ml-3 border bg-red-500 text-white rounded-lg px-2 py-1">
+                <i class="pi pi-trash"></i>
+            </button>
+        </div>
+    </div>
+
+    <ng-template #emptyWishlist>
+        <p class="text-center text-gray-500">Votre wishlist est vide.</p>
+    </ng-template>
+</p-sidebar>
+

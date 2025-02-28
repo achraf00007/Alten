@@ -18,6 +18,7 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { PanelMenuComponent } from "app/shared/ui/panel-menu/panel-menu.component";
 import { CartService } from "app/shared/cart/cart.service";
 import { AuthService } from "app/services/auth.service";
+import { WishlistService } from "app/services/wishlist.service";
 
 @Component({
   selector: "app-layout",
@@ -36,6 +37,13 @@ export class LayoutComponent {
   private readonly messageService = inject(MessageService);
 
 
+  private readonly wishlistService = inject(WishlistService);
+  public isWishlistSidebarVisible = signal(false);
+  public wishlist = this.wishlistService.wishlist;
+
+  public wishlistCount = signal(0);
+
+
   private readonly cartService = inject(CartService);
   public isCartSidebarVisible  = signal(false);
   private readonly cart_service = inject(CartService);
@@ -47,6 +55,7 @@ export class LayoutComponent {
   constructor(private authService: AuthService, private router: Router) {
     effect(() => {
       this.cartCount.set(this.cart_service.getCartCount());
+      this.wishlistCount.set(this.wishlistService.wishlist().length);
     }, { allowSignalWrites: true });
   }
 
@@ -108,5 +117,13 @@ export class LayoutComponent {
 
   public getTotalPrice() {
     return this.cartService.getTotalPrice();
+  }
+
+  public toggleWishlistSidebar() {
+    this.isWishlistSidebarVisible.set(!this.isWishlistSidebarVisible());
+  }
+
+  public removeFromWishlist(productId: number) {
+      this.wishlistService.removeFromWishlist(productId);
   }
 }

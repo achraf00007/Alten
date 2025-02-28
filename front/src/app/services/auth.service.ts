@@ -1,14 +1,17 @@
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { jwtDecode } from "jwt-decode";
 import { environment } from "environments/environment";
 import { CartService } from "app/shared/cart/cart.service";
+import { WishlistService } from "./wishlist.service";
 
 @Injectable({
   providedIn: "root",
 })
 export class AuthService {
+    private readonly wishlistService = inject(WishlistService);
+  
 
   constructor(private http: HttpClient, private cartService: CartService) {}
 
@@ -18,6 +21,7 @@ export class AuthService {
         if (response.token) {
           this.saveToken(response.token);
           this.loadUserCart();
+          this.wishlistService.loadWishlist();
         }
         observer.next(response);
         observer.complete();
@@ -33,6 +37,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem("token");
+    this.wishlistService.resetWishlist();
   }
 
   saveToken(token: string) {

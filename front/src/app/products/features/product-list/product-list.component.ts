@@ -15,6 +15,7 @@ import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { RatingModule } from 'primeng/rating';
 import { AuthService } from "app/services/auth.service";
+import { WishlistService } from "app/services/wishlist.service";
 
 const emptyProduct: Product = {
   id: 0,
@@ -45,6 +46,7 @@ const emptyProduct: Product = {
 export class ProductListComponent implements OnInit {
   private readonly productsService = inject(ProductsService);
   private readonly authService = inject(AuthService);
+  private readonly wishlistService = inject(WishlistService);
   
   private readonly cartService = inject(CartService);
   private readonly messageService = inject(MessageService);
@@ -65,6 +67,8 @@ export class ProductListComponent implements OnInit {
 
   ngOnInit() {
     this.productsService.get().subscribe();
+    this.wishlistService.loadWishlist();
+
 
     this.sortOptions = [
       { label: 'Price High to Low', value: '!price' },
@@ -196,5 +200,18 @@ getSeverity(item: any): 'success' | 'secondary' | 'info' | 'warning' | 'danger' 
             return undefined;
     }
 }
+
+public isInWishlist(product: Product): boolean {
+  return this.wishlistService.wishlist().some(item => item.product.id === product.id);
+}
+
+public toggleWishlist(product: Product) {
+  if (this.isInWishlist(product)) {
+      this.wishlistService.removeFromWishlist(product.id);
+  } else {
+      this.wishlistService.addToWishlist(product);
+  }
+}
+
   
 }
